@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Rubix</title>
+</head>
+<script type="text/javascript" src='jquery.min.js'></script>
+<script type="text/javascript" src='cube.js'></script>
+<script type="text/javascript" src='white_face.js'></script>
+<script type="text/javascript" src='second_layer.js'></script>
+<script type="text/javascript" src='yellow_face.js'></script>
+<script type="text/javascript" src='solver.js'></script>
+<style type="text/css">
+
+	table
+	{
+		margin: auto;
+	}
+
+	td
+	{
+		height: 45px;
+		width: 45px;
+		border-radius: 5px;
+		border: 4px solid;
+		font-family: sans-serif;
+	}
+
+	.spacer 
+	{
+		border: none;
+	}
+
+	.yellow
+	{
+		background-color: #f4c842
+	}
+
+	.green
+	{
+		background-color: #0cb70f;
+	}
+
+	.orange 
+	{
+		background-color: #ffa216;
+
+	}
+
+	.blue 
+	{
+		background-color: #1654ff;
+	}
+
+	.white
+	{
+		background-color: #FFF;
+	}
+
+	.red
+	{
+		background-color: #db360d;
+	}
+
+	.container
+	{
+		width:100%;
+	}
+
+</style>
+<body>
+
+<div class='container'>
+	<div style="text-align: center;">
+		<table>
+			<tr>
+				<td colspan="3" class='spacer'></td>
+				<td id="sticker27"></td>
+				<td id="sticker28"></td>
+				<td id="sticker29"></td>
+				<td colspan="3" class='spacer'></td>
+			</tr>
+			<tr>
+				<td colspan="3" class='spacer'></td>
+				<td id="sticker30"></td>
+				<td id="sticker31" onclick="cube.rotateMultiple(ROTATE_TO_TOP)"></td>
+				<td id="sticker32"></td>
+				<td colspan="3" class='spacer'></td>
+			</tr>
+			<tr>
+				<td colspan="3" class='spacer'></td>
+				<td id="sticker33"></td>
+				<td id="sticker34"></td>
+				<td id="sticker35"></td>
+				<td colspan="3" class='spacer'></td>
+			</tr>
+
+			<tr>
+				<td id="sticker18"></td>
+				<td id="sticker19"></td>
+				<td id="sticker20"></td>
+				<td id="sticker0"></td>
+				<td id="sticker1"></td>
+				<td id="sticker2"></td>
+				<td id="sticker9"></td>
+				<td id="sticker10"></td>
+				<td id="sticker11"></td>
+			</tr>
+			<tr>
+				<td id="sticker21"></td>
+				<td id="sticker22" onclick="cube.rotateMultiple(ROTATE_TO_LEFT)"></td>
+				<td id="sticker23"></td>
+				<td id="sticker3"></td>
+				<td id="sticker4"></td>
+				<td id="sticker5"></td>
+				<td id="sticker12"></td>
+				<td id="sticker13" onclick="cube.rotateMultiple(ROTATE_TO_RIGHT)"></td>
+				<td id="sticker14"></td>
+			</tr>
+			<tr>
+				<td id="sticker24"></td>
+				<td id="sticker25"></td>
+				<td id="sticker26"></td>
+				<td id="sticker6"></td>
+				<td id="sticker7"></td>
+				<td id="sticker8"></td>
+				<td id="sticker15"></td>
+				<td id="sticker16"></td>
+				<td id="sticker17"></td>
+			</tr>
+
+
+			<tr>
+				<td colspan="3" class='spacer'></td>
+				<td id="sticker36"></td>
+				<td id="sticker37"></td>
+				<td id="sticker38"></td>
+				<td colspan="3" class='spacer'></td>
+			</tr>
+			<tr>
+				<td colspan="3" class='spacer'></td>
+				<td id="sticker39"></td>
+				<td id="sticker40" onclick="cube.rotateMultiple(ROTATE_TO_BOTTOM)"></td>
+				<td id="sticker41"></td>
+				<td colspan="3" class='spacer'></td>
+			</tr>
+			<tr>
+				<td colspan="3" class='spacer'></td>
+				<td id="sticker42"></td>
+				<td id="sticker43"></td>
+				<td id="sticker44"></td>
+				<td colspan="3" class='spacer'></td>
+			</tr>
+
+			<tr>
+				<td colspan="3" class='spacer'></td>
+				<td id="sticker45"></td>
+				<td id="sticker46"></td>
+				<td id="sticker47"></td>
+				<td colspan="3" class='spacer'></td>
+			</tr>
+			<tr>
+				<td colspan="3" class='spacer'></td>
+				<td id="sticker48"></td>
+				<td id="sticker49" onclick="cube.rotateMultiple(ROTATE_TO_BACK)"></td>
+				<td id="sticker50"></td>
+				<td colspan="3" class='spacer'></td>
+			</tr>
+			<tr>
+				<td colspan="3" class='spacer'></td>
+				<td id="sticker51"></td>
+				<td id="sticker52"></td>
+				<td id="sticker53"></td>
+				<td colspan="3" class='spacer'></td>
+			</tr>
+		</table>
+
+		<input style="font-size: 40px" id="rotateInput"></input>
+		<br />
+		<button onclick="cube.scramble(35)">Scramble</button>
+
+		<br />
+		<button onclick="solver.solveWhiteCross()">Solve White Cross</button>
+		<button onclick="solver.solveWhiteFace()">Solve White Face</button>
+		<button onclick="solver.solveSecondLayer()">Solve Second Layer</button>
+		<button onclick="solver.solveYellowCross()">Solve Yellow Cross</button>
+		<button onclick="solver.solveYellowFace()">Solve Yellow Cross</button>
+	</div>
+</div>
+
+</body>
+<script type="text/javascript">
+	var cube = new Cube();
+	cube.scramble(35);
+	var solver = new Solver(self.cube);
+
+	solver.solve();
+	
+	$("#rotateInput").keypress(function(event){
+		if (event.keyCode == 13)
+		{
+			var val = $("#rotateInput").val();
+			cube.rotateMultiple(val);
+			$("#rotateInput").val("");
+		}
+	});
+
+	$(document).on("ready", function(event){
+		$("#rotateInput").focus();
+	});
+</script>
+</html>
