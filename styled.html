@@ -4,23 +4,29 @@
 	<title>Rubix</title>
 </head>
 <script type="text/javascript" src='jquery.min.js'></script>
+<script type="text/javascript" src='semantic/semantic.min.js'></script>
+
 <script type="text/javascript" src='cube.js'></script>
 <script type="text/javascript" src='white_face.js'></script>
 <script type="text/javascript" src='second_layer.js'></script>
 <script type="text/javascript" src='yellow_face.js'></script>
 <script type="text/javascript" src='solver.js'></script>
+
+<link rel="stylesheet" type="text/css" href="semantic/semantic.min.css">
 <style type="text/css">
 
 	table.cube
 	{
 		margin: auto;
+		border-collapse: inherit;
+		border-spacing: 4px;
 	}
 
 	table.cube td
 	{
-		height: 45px;
-		width: 45px;
-		border-radius: 5px;
+		height: 50px;
+		width: 50px;
+		border-radius: 5px !important;
 		border: 4px solid;
 		font-family: sans-serif;
 	}
@@ -67,6 +73,11 @@
 		height: 99%;
 	}
 
+	.container
+	{
+		margin-top: 45px;
+	}
+
 	.main
 	{
 	    float: left;
@@ -82,6 +93,7 @@
 	    width: 30%;
 	    height: 100%;
 	    overflow: scroll;
+	    padding: 10px;
 	}
 
 	table.moves
@@ -103,12 +115,19 @@
 </style>
 <body>
 
+<div class="ui top fixed menu">
+  <a class="item">Reset</a>
+  <a class="item">Scramble</a>
+  <div class="right menu">
+    <a class="item">Next Step</a>
+    <a class="item">Next Move</a>
+  </div>
+</div>
+
 <div class='container'>
 
 	<div class='sidebar'>
-		<table class='moves' id='moveTable'>
-			<tr></tr>
-		</table>
+		<div id="steps"></div>
 	</div>
 
 
@@ -216,19 +235,12 @@
 			</tr>
 		</table>
 
-		<input style="font-size: 40px" id="rotateInput"></input>
-		<br />
-		<button onclick="cube.scramble(35); cube.render()">Scramble</button>
-		<button onclick="solver.solve(); cube.render()">Solve</button>
+		<div class="ui input">
+			<input id="rotateInput"></input>
+		</div>
 
-		<br />
-		<button onclick="solver.solveWhiteCross(); cube.render()">Solve White Cross</button>
-		<button onclick="solver.solveWhiteFace(); cube.render()">Solve White Face</button>
-		<button onclick="solver.solveSecondLayer(); cube.render()">Solve Second Layer</button>
-		<button onclick="solver.solveYellowCross(); cube.render()">Solve Yellow Cross</button>
-		<button onclick="solver.solveYellowFace(); cube.render()">Solve Yellow Face</button>
-		<button onclick="solver.solveYellowCorners(); cube.render()">Solve Yellow Face Corners</button>
-		<button onclick="solver.solveYellowEdges(); cube.render()">Solve Yellow Face Edges</button>
+		<button class='ui button' onclick="cube.scramble(35); cube.render()">Scramble</button>
+		<button class='ui button' onclick="solver.solve(); cube.render()">Solve</button>
 	</div>
 </div>
 
@@ -237,7 +249,7 @@
 	var cube = new Cube();
 	cube.scramble(35);
 	cube.render();
-	
+
 	var solver = new Solver(cube);
 	var stepper = new SolverStepper(cube);
 

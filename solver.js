@@ -152,7 +152,8 @@ function SolverStepper(cube)
 			{
 				if (split[j].includes("ROT_"))
 				{
-					newMoves.push(buffer);
+					if (buffer != "")
+						newMoves.push(buffer);
 					newMoves.push(split[j]);
 					buffer = "";
 				}
@@ -190,20 +191,56 @@ function SolverStepper(cube)
 		self.render();
 	}
 
+	self.renderStage = function(name, stageNum, steps)
+	{
+		// <div class="ui segments">
+		//   <div class="ui segment">
+		//     <p>Solve white edges</p>
+		//   </div>
+		//   <div class="ui segments">
+		//     <div class="ui inverted green segment">
+		//       <p>F R U R' U'</p>
+		//     </div>
+		//     <div class="ui secondary segment">
+		//       <p>Rotate clockwise</p>
+		//     </div>
+		//     <div class="ui segment">
+		//       <p>Nested Bottom</p>
+		//     </div>
+		//   </div>
+		// </div>
+
+		var parent = $("<div>").addClass("ui segments");
+		var title = $("<div>").addClass("ui segement").append($("<h3>").text(name).css("padding", "10px 0px 0px 10px"));
+
+		var segments = $("<div>").addClass("ui segments");
+		for (var i = 0; i < steps.length; i++)
+		{
+			var element = $("<div>").addClass("ui segment");
+			element.append($("<p>").text(steps[i]));
+			element.attr("id", "stage_" + stageNum + "_" + i);
+			segments.append(element);
+		}
+
+		parent.append(title);
+		parent.append(segments);
+
+		return parent;
+	}
+
 	self.render = function()
 	{
-		$("#moveTable").html("");
-		for (var i = 0; i < self.solver.stages.length; i++)
+		$("#steps").html("");
+		for (var i = 0; i < self.stages.length; i++)
 		{
-			var element = $("<tr>");
-			element.text(self.stages[i].name);
-			$("#moveTable").append(element);
-			for (var j = 0; j < self.stages[i].steps.length; j++)
-			{
-				$("#moveTable")
-					.append($("<tr>").text(self.stages[i].steps[j]));
-			}
+			$("#steps").append(self.renderStage(self.stages[i].name, i, self.stages[i].steps))	
 		}
+		self.activateStep(0, 0);
+	}
+
+	self.activateStep = function(stageNum, stepNum)
+	{
+		$("#stage_" + stageNum + "_" + stepNum).addClass("inverted green");
 	}
 
 	self.init();
