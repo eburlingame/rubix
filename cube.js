@@ -18,6 +18,7 @@ const BACK  = 45;
 
 const NUMBER_OF_STICKERS = 54; 
 
+// 6 Face rotation data
 const TURN_RIGHT = [29, 32, 35, 2,  5,   8, 38, 41, 44, 47, 50, 53,  9, 10, 11, 14, 17, 16, 15, 12];
 const TURN_LEFT  = [51, 48, 45, 42, 39, 36,  6,  3,  0, 33, 30, 27, 23, 26, 25, 24, 21, 18, 19, 20];
 const TURN_DOWN  = [45, 46, 47, 17, 16, 15,  8,  7,  6, 26, 25, 24, 41, 44, 43, 42, 39, 36, 37, 38];
@@ -25,18 +26,31 @@ const TURN_UP    = [18, 19, 20,  0,  1,  2,  9, 10, 11, 53, 52, 51, 27, 28, 29, 
 const TURN_FRONT = [20, 23, 26, 36, 37, 38, 15, 12,  9, 35, 34, 33,  0,  1,  2,  5,  8,  7,  6,  3];
 const TURN_BACK  = [44, 43, 42, 24, 21, 18, 27, 28, 29, 11, 14, 17, 50, 53, 52, 51, 48, 45, 46, 47];
 
+// Center face rotation data
 const TURN_MIDDLE_VERT = [28, 31, 34,  1,  4,  7, 37, 40, 43, 46, 49, 52];
 const TURN_MIDDLE_HORZ = [21, 22, 23,  3,  4,  5, 12, 13, 14, 50, 49, 48];
 const TURN_MIDDLE_CENT = [19, 22, 25, 39, 40, 41, 16, 13, 10, 32, 31, 30];
 
-const ROTATE_TO_TOP 	= "L M' R'";
-const ROTATE_TO_RIGHT 	= "U E D'";
-const ROTATE_TO_BOTTOM 	= "L' M R";
-const ROTATE_TO_LEFT 	= "U' E' D";
-const ROTATE_TO_BACK 	= "R R M M L' L'";
+// Entire cube rotation shortcuts
+const ROTATE_TO_TOP 	= "ROT_UP";
+const ROTATE_TO_RIGHT 	= "ROT_RIGHT";
+const ROTATE_TO_BOTTOM 	= "ROT_DOWN";
+const ROTATE_TO_LEFT 	= "ROT_LEFT";
+const ROTATE_TO_BACK 	= "ROT_BACK";
 
-const ROTATE_CUBE 		= "F S B'";
-const ROTATE_CUBE_PRIME	= "F' S' B";
+const ROTATE_CUBE 		= "ROT_CW"
+const ROTATE_CUBE_PRIME	= "ROT_CCW";
+
+// Moves to rotate entire cube
+const ROT_UP 	= "L M' R'";
+const ROT_RIGHT = "U E D'";
+const ROT_DOWN 	= "L' M R";
+const ROT_LEFT 	= "U' E' D";
+const ROT_BACK 	= "R R M M L' L'";
+
+const ROT_CW 	= "F S B'";
+const ROT_CCW	= "F' S' B";
+
 
 const CENTERS = [4, 13, 22, 31, 40, 49];
 const EDGES = { 
@@ -85,7 +99,6 @@ function Cube()
 			WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE, WHITE,
 			RED, RED, RED, RED, RED, RED, RED, RED, RED,
 		];
-		self.render();
 	}
 
 	self.face = function(id)
@@ -227,15 +240,16 @@ function Cube()
 	self.centerOnColorFace = function(color)
 	{
 		if (self.cube[31] == color)
-			self.rotateMultiple(ROTATE_TO_TOP);
+			return ROTATE_TO_TOP;
 		if (self.cube[13] == color)
-			self.rotateMultiple(ROTATE_TO_RIGHT);
+			return ROTATE_TO_RIGHT;
 		if (self.cube[40] == color)
-			self.rotateMultiple(ROTATE_TO_BOTTOM);
+			return ROTATE_TO_BOTTOM;
 		if (self.cube[22] == color)
-			self.rotateMultiple(ROTATE_TO_LEFT);
+			return ROTATE_TO_LEFT;
 		if (self.cube[49] == color)
-			self.rotateMultiple(ROTATE_TO_BACK);
+			return ROTATE_TO_BACK;
+		return "";
 	}
 
 	self.rotate = function(rotation_matrix, direction)
@@ -259,22 +273,6 @@ function Cube()
 			}
 		}
 		self.cube = newCube;
-	}
-
-	self.rotateMultiple = function(commands)
-	{
-		var split = commands.split(/\s+/);
-		for (var i = 0; i < split.length; i++)
-		{
-			var instruction = split[i].toUpperCase();
-			if (instruction.includes("2"))
-			{
-				instruction = instruction.replace("2", "");
-				self.rotateDirection(instruction);	
-			}
-			self.rotateDirection(instruction);
-		}
-		self.render();
 	}
 
 	self.rotateDirection = function(direction)
@@ -318,13 +316,62 @@ function Cube()
 			self.rotate(TURN_MIDDLE_CENT, -1);
 	}
 
+	self.rotateSingle = function(command)
+	{
+		if (command.includes("2"))
+		{
+			command = command.replace("2", "");
+			self.rotateDirection(command);	
+		}
+		self.rotateDirection(command);
+	}
+
+	self.rotateMultiple = function(commands)
+	{
+		var split = commands.split(/\s+/);
+		for (var i = 0; i < split.length; i++)
+		{
+			self.rotateSingle(split[i]);
+		}
+	}
+
+	self.rotateMove = function(move)
+	{
+		if (move == ROTATE_TO_TOP)
+			return self.rotateMultiple(ROT_UP);
+		if (move == ROTATE_TO_RIGHT)
+			return self.rotateMultiple(ROT_RIGHT);
+		if (move == ROTATE_TO_LEFT)
+			return self.rotateMultiple(ROT_LEFT);
+		if (move == ROTATE_TO_BOTTOM)
+			return self.rotateMultiple(ROT_DOWN);
+		if (move == ROTATE_TO_BACK)
+			return self.rotateMultiple(ROT_BACK);
+
+		if (move == ROTATE_CUBE)
+			return self.rotateMultiple(ROT_CW);
+		if (move == ROTATE_CUBE_PRIME)
+			return self.rotateMultiple(ROT_CCW);
+
+		return self.rotateSingle(move);
+	}
+
+	self.makeMove = function(moves)
+	{
+		var split = moves.split(/\s+/);
+		for (var i = 0; i < split.length; i++)
+		{
+			var instruction = split[i].toUpperCase();
+			self.rotateMove(instruction);
+		}
+	}
+
 	self.scramble = function(numTurns)
 	{
 		for (var i = 0; i < numTurns; i++)
 		{
 			var move = getRandInt(0, 12);
 			self.rotateDirection(MOVES[move]);
-			self.render();
 		}
 	}
 

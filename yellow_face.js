@@ -8,12 +8,24 @@ function YellowCrossSolver(cube)
 
 	self.init = function()
 	{
-		self.cube.centerOnColorFace(YELLOW);
-		self.cube.rotateMultiple(ROTATE_TO_BOTTOM);
+		self.firstMove = true;
+		self.secondMove = false;
 	}
 
 	self.getNextMove = function()
 	{
+		if (self.firstMove)
+		{
+			self.firstMove = false;
+			self.secondMove = true; 
+			return self.cube.centerOnColorFace(YELLOW);
+		}
+		if (self.secondMove)
+		{
+			self.secondMove = false;
+			return ROTATE_TO_BOTTOM;
+		}
+
 		if (self.cube.topHasCross())
 			return true;
 
@@ -50,12 +62,24 @@ function YellowFaceSolver(cube)
 
 	self.init = function()
 	{
-		self.cube.centerOnColorFace(YELLOW);
-		self.cube.rotateMultiple(ROTATE_TO_BOTTOM);
+		self.firstMove = true;
+		self.secondMove = false;
 	}
 
 	self.getNextMove = function()
 	{
+		if (self.firstMove)
+		{
+			self.firstMove = false;
+			self.secondMove = true; 
+			return self.cube.centerOnColorFace(YELLOW);
+		}
+		if (self.secondMove)
+		{
+			self.secondMove = false;
+			return ROTATE_TO_BOTTOM;
+		}
+
 		if (self.cube.topIsSolid())
 			return true;
 
@@ -100,7 +124,7 @@ function YellowCornerSolver(cube)
 
 	self.init = function()
 	{
-		self.cube.centerOnColorFace(YELLOW);
+		self.firstMove = true;
 	}
 
 	self.getRotation = function(currentColor, destColor)
@@ -140,6 +164,12 @@ function YellowCornerSolver(cube)
 
 	self.getNextMove = function()
 	{
+		if (self.firstMove)
+		{
+			self.firstMove = false;
+			return self.cube.centerOnColorFace(YELLOW);
+		}
+
 		if (self.cube.frontCornersCorrect())
 			return true;
 
@@ -172,29 +202,36 @@ function YellowEdgeSolver(cube)
 
 	self.init = function()
 	{
-		self.cube.centerOnColorFace(YELLOW);
-		self.cube.rotateMultiple(ROTATE_TO_BOTTOM);
+		self.firstMove = true;
+		self.secondMove = false;
 	}
 	
 	self.getNextMove = function()
 	{
+		if (self.firstMove)
+		{
+			self.firstMove = false;
+			self.secondMove = true; 
+			return self.cube.centerOnColorFace(YELLOW);
+		}
+
+		if (self.secondMove)
+		{
+			self.secondMove = false;
+			return ROTATE_TO_BOTTOM;
+		}
+
 		if (self.cube.isSolved())
 			return true;
 
 		if (self.cube.face(10) == self.cube.face(13))
-		{
 			return ROTATE_TO_LEFT;
-		}
 
 		if (self.cube.face(19) == self.cube.face(22))
-		{
 			return ROTATE_TO_RIGHT;
-		}
 
 		if ((self.cube.face(1) == self.cube.face(4)))
-		{
 			return ROTATE_TO_RIGHT + " " + ROTATE_TO_RIGHT;
-		}
 
 		return PERMUTE_YELLOW_EDGES;
 	}

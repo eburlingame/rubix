@@ -35,38 +35,34 @@ function WhiteCrossSolver(cube)
 {
 	var self = this; 
 	self.cube = cube;
-	self.currentMove = 0; 
-	self.moves = [];
 
 	self.init = function()
 	{
-		self.cube.centerOnColorFace(WHITE);
+		self.firstMove = true; 
 	}
 
 	self.solveRightMove = function()
 	{
 		var rightColor = self.cube.face(13);
 		var edgeLocation = self.cube.findEdge(WHITE, rightColor);
-		var moves = MIDDLE_RIGHT_MOVES[edgeLocation];
-		self.moves = moves.split(/\s+/);
-		self.currentMove = 0; 
+		return MIDDLE_RIGHT_MOVES[edgeLocation];
 	}
 
 	self.getNextMove = function()
 	{
-		if (self.moves.length == 0)
-			self.solveRightMove();
-
-		if (self.moves.length == self.currentMove)
+		if (self.firstMove)
 		{
-			if (self.cube.frontHasAlignedCross())
-				return true; 
-
-			self.moves = [];
-			return ROTATE_CUBE;
+			self.firstMove = false;
+			return self.cube.centerOnColorFace(WHITE);
 		}
-		self.currentMove += 1;
-		return self.moves[self.currentMove - 1];
+
+		if (self.cube.frontHasAlignedCross())
+			return true;
+
+		if (self.cube.face(5) == WHITE && self.cube.face(12) == self.cube.face(13))
+			return ROTATE_CUBE;
+
+		return self.solveRightMove();
 	}
 	self.init();
 }
@@ -78,11 +74,17 @@ function WhiteFaceSolver(cube)
 
 	self.init = function()
 	{
-		self.centerOnColorFace(WHITE);
+		self.firstMove = true;
 	}
 
 	self.getNextMove = function()
 	{
+		if (self.firstMove)
+		{
+			self.firstMove = false;
+			return self.cube.centerOnColorFace(WHITE);
+		}
+
 		if (self.cube.frontIsSolid())
 			return true;
 

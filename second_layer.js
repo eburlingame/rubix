@@ -9,9 +9,9 @@ function SecondLayerSolver(cube)
 
 	self.init = function()
 	{
-		self.cube.centerOnColorFace(YELLOW);
-		self.cube.rotateMultiple(ROTATE_TO_BOTTOM);
-		self.rotateCount = 0; 
+		self.rotateCount = 0;
+		self.firstMove = true;
+		self.secondMove = false;
 	}
 
 	self.getRotation = function(currentColor, destColor)
@@ -33,6 +33,18 @@ function SecondLayerSolver(cube)
 	self.rotateCount = 0; 
 	self.getNextMove = function()
 	{
+		if (self.firstMove)
+		{
+			self.firstMove = false;
+			self.secondMove = true; 
+			return self.cube.centerOnColorFace(YELLOW);
+		}
+		if (self.secondMove)
+		{
+			self.secondMove = false;
+			return ROTATE_TO_BOTTOM;
+		}
+
 		if (cube.twoLayersSolved())
 			return true; 
 

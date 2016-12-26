@@ -7,10 +7,6 @@ function Solver(cube)
 	self.currentSolver;
 	self.cube = cube; 
 
-	self.init = function()
-	{
-		}
-
 	self.solve = function()
 	{
 		var result = true; 
@@ -59,7 +55,6 @@ function Solver(cube)
 	self.solveYellowCorners = function()
 	{
 		self.currentSolver = new YellowCornerSolver(self.cube);
-		console.log("Solving yellow corners");
 		return self.solveCurrentStage();
 	}
 
@@ -87,12 +82,14 @@ function Solver(cube)
 
 	self.solveCurrentStage = function()
 	{
+		self.moves = [];
 		var move = self.currentSolver.getNextMove();
 		var i = 0; 
 		while(move != true)
 		{
 			i += 1;
-			cube.rotateMultiple(move);
+			self.moves.push(move);
+			cube.makeMove(move);
 			move = self.currentSolver.getNextMove();
 			if (i >= MAX_STEPS)
 			{
@@ -105,7 +102,7 @@ function Solver(cube)
 	self.applyNextMove = function()
 	{
 		move = self.currentSolver.getNextMove();
-		cube.rotateMultiple(move);
+		cube.makeMove(move);
 		console.log(move);
 	}
 
@@ -118,4 +115,96 @@ function Solver(cube)
 		self.solveYellowCorners,
 		self.solveYellowEdges
 	];
+
+	self.stageDescriptions = [
+		"Solve white cross", 
+		"Solve white face",
+		"Solve second layer",
+		"Solve yellow cross",
+		"Solve yellow corners",
+		"Solve yellow edges"
+	];
+}
+
+function SolverStepper(cube)
+{
+	var self = this; 
+	self.cube = cube;
+	self.stages = [];
+
+	self.copyCube = function()
+	{
+		for (var i = 0; i < NUMBER_OF_STICKERS; i++)
+		{
+			self.solutionCube.cube[i] = self.cube.face(i);
+		}
+	}
+
+	self.seperateRotationMoves = function(moves)
+	{
+		var newMoves = [];
+		for (var i = 0; i < moves.length; i++)
+		{
+			var split = moves[i].split(/\s+/);
+			var buffer = "";
+
+			for (var j = 0; j < split.length; j++)
+			{
+				if (split[j].includes("ROT_"))
+				{
+					newMoves.push(buffer);
+					newMoves.push(split[j]);
+					buffer = "";
+				}
+				else
+				{
+					buffer += split[j] + " ";
+				}
+			}
+			if (buffer != "")
+				newMoves.push(buffer);
+		}
+		return newMoves;
+	}
+
+	self.init = function()
+	{
+		console.log(self.cube);
+		self.solutionCube = new Cube();
+		self.copyCube();
+		console.log(self.solutionCube);
+
+		self.solver = new Solver(self.solutionCube);
+
+		var result = true; 
+		for (var i = 0; i < self.solver.stages.length; i++)
+		{
+			result = self.solver.stages[i].call();
+			var steps = self.seperateRotationMoves(self.solver.moves);
+			self.stages.push({
+				"name": self.solver.stageDescriptions[i],
+				"steps": steps
+			});
+		}
+		console.log(self.stages);
+		self.render();
+	}
+
+	self.render = function()
+	{
+		$("#moveTable").html("");
+		for (var i = 0; i < self.solver.stages.length; i++)
+		{
+			var element = $("<tr>");
+			element.text(self.stages[i].name);
+			$("#moveTable").append(element);
+			for (var j = 0; j < self.stages[i].steps.length; j++)
+			{
+				$("#moveTable")
+					.append($("<tr>").text(self.stages[i].steps[j]));
+			}
+		}
+	}
+
+	self.init();
 }
