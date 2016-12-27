@@ -3,7 +3,7 @@ const MIDDLE_RIGHT_MOVES = {
 	1: "U2 B' R2", 
 	3: "L2 B2 R2", 
 	5: "", 
-	7: "U2 B R2", 
+	7: "D2 B R2", 
 
 	10: "U' B' R2 U", 
 	12: "R2 B' D' R D", 

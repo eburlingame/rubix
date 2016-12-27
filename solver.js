@@ -121,6 +121,7 @@ function Solver(cube)
 		"Solve white face",
 		"Solve second layer",
 		"Solve yellow cross",
+		"Solve yellow face",
 		"Solve yellow corners",
 		"Solve yellow edges"
 	];
@@ -131,6 +132,8 @@ function SolverStepper(cube)
 	var self = this; 
 	self.cube = cube;
 	self.stages = [];
+	self.activeStage = 0; 
+	self.activeStep = 0; 
 
 	self.copyCube = function()
 	{
@@ -152,9 +155,11 @@ function SolverStepper(cube)
 			{
 				if (split[j].includes("ROT_"))
 				{
-					if (buffer != "")
+					if (buffer.trim() != "")
 						newMoves.push(buffer);
-					newMoves.push(split[j]);
+					if (split[j] != "")
+						newMoves.push(split[j]);
+
 					buffer = "";
 				}
 				else
@@ -162,7 +167,7 @@ function SolverStepper(cube)
 					buffer += split[j] + " ";
 				}
 			}
-			if (buffer != "")
+			if (buffer.trim() != "")
 				newMoves.push(buffer);
 		}
 		return newMoves;
@@ -189,37 +194,94 @@ function SolverStepper(cube)
 		}
 		console.log(self.stages);
 		self.render();
+		self.activateStep();
+	}
+
+	self.nextStep = function()
+	{
+		if (self.activeStage >= self.stages.length)
+			return true;
+
+		self.cube.makeMove(self.stages[self.activeStage].steps[self.activeStep]);
+		self.cube.render();
+
+		self.deactivateStep();
+		if (self.activeStep == self.stages[self.activeStage].steps.length - 1)
+		{
+			self.activeStage += 1;
+			self.activeStep = 0;
+
+			if (self.activeStage == self.stages.length)
+				return true;
+
+			while(self.stages[self.activeStage].steps.length == 0)
+				self.activeStage += 1;
+		}
+		else
+			self.activeStep += 1;
+
+		self.activateStep();
+		return false; 
+	}
+
+	self.runSolution = function()
+	{
+		var result = self.nextStep();
+		if (result != true)
+		{
+			setTimeout(self.runSolution, 300);
+		}
+		return result;
+	}
+
+	self.getRotationLabel = function(text)
+	{
+		if (text == "ROT_UP")
+			return "Rotate cube to up face";
+		if (text == "ROT_DOWN")
+			return "Rotate cube to down face";
+		if (text == "ROT_LEFT")
+			return "Rotate cube to left face";
+		if (text == "ROT_RIGHT")
+			return "Rotate cube to right face";
+		if (text == "ROT_BACK")
+			return "Rotate cube to back face";
+
+		if (text == "ROT_CW")
+			return "Rotate cube clockwise";
+		if (text == "ROT_CCW")
+			return "Rotate cube counterclockwise";
+	}
+
+	self.renderStep = function(name, stageNum, stepNumber, stepText)
+	{
+		var element = $("<div>").addClass("ui segment");
+
+		element.append($("<p>"));
+		if (stepText.includes("ROT_"))
+		{
+			element.addClass("secondary");
+			element.text(self.getRotationLabel(stepText));
+		}
+		else
+		{
+			element.text(stepText.toUpperCase());
+		}
+		element.attr("id", "stage_" + stageNum + "_" + stepNumber);
+
+		return element; 
 	}
 
 	self.renderStage = function(name, stageNum, steps)
 	{
-		// <div class="ui segments">
-		//   <div class="ui segment">
-		//     <p>Solve white edges</p>
-		//   </div>
-		//   <div class="ui segments">
-		//     <div class="ui inverted green segment">
-		//       <p>F R U R' U'</p>
-		//     </div>
-		//     <div class="ui secondary segment">
-		//       <p>Rotate clockwise</p>
-		//     </div>
-		//     <div class="ui segment">
-		//       <p>Nested Bottom</p>
-		//     </div>
-		//   </div>
-		// </div>
-
-		var parent = $("<div>").addClass("ui segments");
-		var title = $("<div>").addClass("ui segement").append($("<h3>").text(name).css("padding", "10px 0px 0px 10px"));
+		var parent = $("<div>").addClass("ui segments").attr("id", "stage_" + stageNum);
+		var title = $("<div>").addClass("ui segement")
+							  .append($("<h3>").text(name).css("padding", "10px 0px 0px 15px"));
 
 		var segments = $("<div>").addClass("ui segments");
 		for (var i = 0; i < steps.length; i++)
 		{
-			var element = $("<div>").addClass("ui segment");
-			element.append($("<p>").text(steps[i]));
-			element.attr("id", "stage_" + stageNum + "_" + i);
-			segments.append(element);
+			segments.append(self.renderStep(name, stageNum, i, steps[i]));
 		}
 
 		parent.append(title);
@@ -238,9 +300,23 @@ function SolverStepper(cube)
 		self.activateStep(0, 0);
 	}
 
-	self.activateStep = function(stageNum, stepNum)
+	self.deactivateStep = function()
 	{
-		$("#stage_" + stageNum + "_" + stepNum).addClass("inverted green");
+		$("#stage_" + self.activeStage + "_" + self.activeStep).removeClass("inverted green");	
+	}
+
+	const TRANSITION_RATE = 100;
+	self.activateStep = function()
+	{
+		var activeSegment = "#stage_" + self.activeStage + "_" + self.activeStep;
+		$(activeSegment).addClass("inverted green");
+
+		if (self.activeStep == 0)
+		{
+			$(".sidebar").scrollTo("#stage_" + self.activeStage, TRANSITION_RATE);
+		}
+		else
+			$(".sidebar").scrollTo(activeSegment, TRANSITION_RATE);
 	}
 
 	self.init();
