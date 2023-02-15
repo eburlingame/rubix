@@ -1,0 +1,9 @@
+version: '3'
+
+services:
+  rubix:
+    image: ghcr.io/eburlingame/disruptors/rubix:latest
+    container_name: rubix
+    restart: always
+    ports:
+      - 3004:80
