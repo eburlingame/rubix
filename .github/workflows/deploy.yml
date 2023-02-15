@@ -39,8 +39,8 @@ jobs:
   deploy:
     needs:
       - frontend-build
-
     runs-on: ubuntu-latest
+    environment: dev
     steps:
       - name: Set up Docker Buildx
         id: buildx
